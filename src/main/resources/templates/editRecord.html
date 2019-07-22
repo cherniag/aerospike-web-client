@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Create connection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/shards.min.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.ico}">
+</head>
+<body>
+<div class="container my-4">
+    <h5 class="my-4">
+        <a th:href="${'/connection/'}" th:text="${'Home'}" class="btn btn-warning"></a>
+        >
+        <a th:href="@{'/namespace/' + ${connectionId}}" th:text="${connectionId}" class="btn btn-warning"></a>
+        >
+        <a th:href="@{'/set/' + ${connectionId} + '/' + ${namespace}}" th:text="${namespace}" class="btn btn-warning"></a>
+        >
+        <a th:href="@{'/record/' + ${connectionId} + '/' + ${namespace}} + '/' + ${set}" th:text="${set}" class="btn btn-warning"></a>
+        >
+        <a th:text="${key}" class="btn btn-warning disabled"></a>
+    </h5>
+    <h6 class="my-3">Edit record:</h6>
+    <div class="row">
+        <div class="col-md-5">
+            <form id="edit-form" action="#" th:action="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${key}}" th:object="${record}" method="post">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="expiration" class="col-form-label">Expiration</label>
+                        <input type="text" th:field="*{expiration}" class="form-control" id="expiration" placeholder="Expiration">
+                        <span th:if="${#fields.hasErrors('expiration')}" th:errors="*{expiration}" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="raw" class="col-form-label">Content</label>
+                        <textarea th:field="*{raw}" class="form-control" id="raw" form="edit-form" placeholder="Raw" rows="20"></textarea>
+                        <span th:if="${#fields.hasErrors('raw')}" th:errors="*{raw}" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mt-4">
+                        <input type="submit" class="btn btn-success" value="Save">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

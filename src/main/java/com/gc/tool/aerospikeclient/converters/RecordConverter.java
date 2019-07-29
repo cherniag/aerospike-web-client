@@ -3,6 +3,7 @@ package com.gc.tool.aerospikeclient.converters;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class RecordConverter {
     private final ObjectMapper clientObjectMapper;
 
     public AerospikeRecord toAerospikeRecord(Key key, Record record) {
-        log.debug("to record {} {}", key, record);
+        log.debug("to record key {} digest {} record {}", key, Arrays.toString(key.digest), record);
         try {
             return record == null ? null : new AerospikeRecord(
                 key.userKey == null ? null : key.userKey.toString(),

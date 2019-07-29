@@ -1,5 +1,6 @@
 package com.gc.tool.aerospikeclient.service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import com.gc.tool.aerospikeclient.dto.QueryDto;
 import com.gc.tool.aerospikeclient.dto.UpdateRecordDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -81,7 +83,7 @@ public class QueryService {
     }
 
     public List<AerospikeRecord> getRecords(Long connectionId, String namespace, String set) {
-        log.info("getRecords {}, namespace {}, set {}", connectionId, namespace, set);
+        log.info("getRecords connectionId {}, namespace {}, set {}", connectionId, namespace, set);
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
         Statement statement = new Statement();
         statement.setNamespace(namespace);
@@ -89,41 +91,43 @@ public class QueryService {
         return doQuery(aerospikeClient, statement);
     }
 
-    public void deleteRecord(Long connectionId, String namespace, String set, String keyToRemove) {
-        log.info("deleteRecord {}, namespace {}, set {}, key {}", connectionId, namespace, set, keyToRemove);
+    public void deleteRecordByHash(Long connectionId, String namespace, String set, String hash) {
+        log.info("deleteRecordByHash connectionId {}, namespace {}, set {}, key {}", connectionId, namespace, set, hash);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
-        Key key = new Key(namespace, set, keyToRemove);
+        Key key = new Key(namespace, HexUtils.fromHexString(hash), set, null);
         boolean existed = aerospikeClient.delete(defaultDeletePolicy, key);
         log.info("Record existed {}", existed);
     }
 
-    public AerospikeRecord getRecord(Long connectionId, String namespace, String set, String keyId) {
-        log.info("getRecords {}, namespace {}, set {}", connectionId, namespace, set);
+    public AerospikeRecord getRecordByHash(Long connectionId, String namespace, String set, String hash) {
+        log.info("getRecord connectionId {}, namespace {}, set {}, hash {}", connectionId, namespace, set, hash);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
-        Key key = new Key(namespace, set, keyId);
+        byte[] digest = HexUtils.fromHexString(hash);
+        log.debug("Digest {}", Arrays.toString(digest));
+        Key key = new Key(namespace, digest, set, null);
         Record record = aerospikeClient.get(defaultReadPolicy, key);
 
         return recordConverter.toAerospikeRecord(key, record);
     }
 
-    public void updateRecord(Long connectionId, String namespace, String set, String keyId, UpdateRecordDto updateDto) {
-        log.info("updateRecord {}, namespace {}, set {}, record {}", connectionId, namespace, set, updateDto);
+    public void updateRecord(Long connectionId, String namespace, String set, String hash, UpdateRecordDto updateDto) {
+        log.info("updateRecord connectionId {}, namespace {}, set {}, hash {}, record {}", connectionId, namespace, set, hash, updateDto);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
 
-        Key key = new Key(namespace, set, keyId);
+        Key key = new Key(namespace, HexUtils.fromHexString(hash), set, null);
         Bin[] bins = recordConverter.getBins(updateDto.getBins());
 
-        WritePolicy policy = getWritePolicy(defaultUpdatePolicy, updateDto.getExpiration(), updateDto.isSendKey(), updateDto.getRecordExistsAction());
+        WritePolicy policy = getWritePolicy(defaultUpdatePolicy, updateDto.getExpiration(), false, updateDto.getRecordExistsAction());
         policy.generationPolicy = updateDto.getGenerationPolicy();
         policy.generation = updateDto.getGeneration();
         aerospikeClient.put(policy, key, bins);
     }
 
     public void createRecord(Long connectionId, String namespace, String set, CreateRecordDto createDto) {
-        log.info("createRecord {}, namespace {}, set {}, record {}", connectionId, namespace, set, createDto);
+        log.info("createRecord connectionId {}, namespace {}, set {}, record {}", connectionId, namespace, set, createDto);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
 
@@ -135,11 +139,11 @@ public class QueryService {
     }
 
     public List<AerospikeRecord> query(Long connectionId, String namespace, String set, QueryDto queryDto) {
-        log.info("query {}, namespace {}, set {}, record {}", connectionId, namespace, set, queryDto);
+        log.info("query connectionId {}, namespace {}, set {}, record {}", connectionId, namespace, set, queryDto);
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
 
         if (queryDto.getKey() != null && !queryDto.getKey().isEmpty()) {
-            return Collections.singletonList(getRecord(connectionId, namespace, set, queryDto.getKey()));
+            return Collections.singletonList(getRecordByKey(connectionId, namespace, set, queryDto.getKey()));
         }
 
         Filter filter = queryDto.getQueryOperator().getMapper().apply(queryDto);
@@ -149,6 +153,16 @@ public class QueryService {
         statement.setSetName(set);
         statement.setFilter(filter);
         return doQuery(aerospikeClient, statement);
+    }
+
+    private AerospikeRecord getRecordByKey(Long connectionId, String namespace, String set, String recordKey) {
+        log.info("getRecordByKey connectionId {}, namespace {}, set {}, hash {}", connectionId, namespace, set, recordKey);
+
+        AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
+        Key key = new Key(namespace, set, recordKey);
+        Record record = aerospikeClient.get(defaultReadPolicy, key);
+
+        return recordConverter.toAerospikeRecord(key, record);
     }
 
     private List<AerospikeRecord> doQuery(AerospikeClient aerospikeClient, Statement statement) {

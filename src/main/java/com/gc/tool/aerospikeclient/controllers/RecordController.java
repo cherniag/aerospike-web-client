@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/record")
@@ -49,12 +51,12 @@ public class RecordController {
         return "record";
     }
 
-    @GetMapping("/delete/{connectionId}/{namespace}/{set}/{key}")
+    @GetMapping("/delete/{connectionId}/{namespace}/{set}/{hash}")
     public String deleteDo(@PathVariable("connectionId") Long connectionId,
                            @PathVariable("namespace") String namespace,
                            @PathVariable("set") String set,
-                           @PathVariable("key") String key) {
-        queryService.deleteRecord(connectionId, namespace, set, key);
+                           @PathVariable("hash") String hash) {
+        queryService.deleteRecordByHash(connectionId, namespace, set, hash);
         return "redirect:/record/" + connectionId + "/" + namespace + "/" + set;
     }
 
@@ -86,34 +88,35 @@ public class RecordController {
     }
 
 
-    @GetMapping("/edit/{connectionId}/{namespace}/{set}/{key}")
+    @GetMapping("/edit/{connectionId}/{namespace}/{set}/{hash}")
     public String getEditRecordPage(@PathVariable("connectionId") Long connectionId,
                                     @PathVariable("namespace") String namespace,
                                     @PathVariable("set") String set,
-                                    @PathVariable("key") String key,
+                                    @PathVariable("hash") String hash,
+                                    @RequestParam(name = "key", required = false, defaultValue = "") String key,
                                     Model model) {
         model.addAttribute("connectionId", connectionId);
         model.addAttribute("namespace", namespace);
         model.addAttribute("set", set);
+        model.addAttribute("hash", hash);
         model.addAttribute("key", key);
-        AerospikeRecord record = queryService.getRecord(connectionId, namespace, set, key);
+        AerospikeRecord record = queryService.getRecordByHash(connectionId, namespace, set, hash);
         model.addAttribute("record", new UpdateRecordDto(
             null,
             record.getGeneration(),
-            true,
             RecordExistsAction.UPDATE_ONLY,
             GenerationPolicy.NONE,
             record.getRaw()));
         return "editRecord";
     }
 
-    @PostMapping("/edit/{connectionId}/{namespace}/{set}/{key}")
+    @PostMapping("/edit/{connectionId}/{namespace}/{set}/{hash}")
     public String editRecordDo(@PathVariable("connectionId") Long connectionId,
                                @PathVariable("namespace") String namespace,
                                @PathVariable("set") String set,
-                               @PathVariable("key") String key,
-                               @ModelAttribute UpdateRecordDto updateRecordDto) {
-        queryService.updateRecord(connectionId, namespace, set, key, updateRecordDto);
+                               @PathVariable("hash") String hash,
+                               @ModelAttribute @Valid UpdateRecordDto updateRecordDto) {
+        queryService.updateRecord(connectionId, namespace, set, hash, updateRecordDto);
         return "redirect:/record/" + connectionId + "/" + namespace + "/" + set;
     }
 
@@ -125,7 +128,7 @@ public class RecordController {
         model.addAttribute("connectionId", connectionId);
         model.addAttribute("namespace", namespace);
         model.addAttribute("set", set);
-        model.addAttribute("record", new CreateRecordDto(null, -1, true, RecordExistsAction.CREATE_ONLY, GenerationPolicy.NONE, null));
+        model.addAttribute("record", new CreateRecordDto(null, -1, true, RecordExistsAction.CREATE_ONLY, null));
         return "createRecord";
     }
 
@@ -133,7 +136,7 @@ public class RecordController {
     public String createRecordDo(@PathVariable("connectionId") Long connectionId,
                                  @PathVariable("namespace") String namespace,
                                  @PathVariable("set") String set,
-                                 @ModelAttribute CreateRecordDto createRecordDto) {
+                                 @ModelAttribute @Valid CreateRecordDto createRecordDto) {
         queryService.createRecord(connectionId, namespace, set, createRecordDto);
         return "redirect:/record/" + connectionId + "/" + namespace + "/" + set;
     }

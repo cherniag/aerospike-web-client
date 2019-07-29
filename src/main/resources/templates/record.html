@@ -42,10 +42,11 @@
                         <td th:text="${record.key}"></td>
                         <td th:text="${record.generation}"></td>
                         <td th:text="${record.expiration}"></td>
-                        <!--<td th:each="bin : ${bins}" th:with="val=@{${record.content.get(bin) != null} ? ${record.content.get(bin).toString()} : ''}" th:text="@{${val.length()} < 100 ? ${val} : ${val.substring(0, 100)} + '...'}">--></td>
+                        <!--<td th:each="bin : ${bins}" th:with="val=@{${record.content.get(bin) != null} ? ${record.content.get(bin).toString()} : ''}" th:text="@{${val.length()} < 100 ? ${val} : ${val.substring(0, 100)} + '...'}"></td>-->
                         <td th:each="bin : ${bins}" th:text="${record.content.get(bin)}"></td>
-                        <td th:if="${record.key != null}"><a th:href="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${record.key}}" class="btn btn-primary"><i class="fas fa-edit"></i></a></td>
-                        <td th:if="${record.key != null}"><a th:href="@{'/record/delete/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${record.key}}" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
+                        <td th:if="${record.key != null}"><a th:href="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${record.hash} + '?key=' + ${record.key}}" class="btn btn-primary"><i class="fas fa-edit"></i></a></td>
+                        <td th:if="${record.key == null}"><a th:href="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${record.hash}}" class="btn btn-primary"><i class="fas fa-edit"></i></a></td>
+                        <td><a th:href="@{'/record/delete/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${record.hash}}" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
                     </tr>
                     </tbody>
                 </table>

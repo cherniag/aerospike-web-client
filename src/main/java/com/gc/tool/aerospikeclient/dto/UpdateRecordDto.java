@@ -5,9 +5,9 @@ import com.aerospike.client.policy.RecordExistsAction;
 import lombok.Value;
 
 @Value
-public class CreateRecordDto {
-    String key;
+public class UpdateRecordDto {
     Integer expiration;
+    int generation;
     boolean sendKey;
     RecordExistsAction recordExistsAction;
     GenerationPolicy generationPolicy;

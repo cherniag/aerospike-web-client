@@ -28,17 +28,53 @@
         <div class="col-md-5">
             <form id="edit-form" action="#" th:action="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${key}}" th:object="${record}" method="post">
                 <div class="row">
-                    <div class="form-group col-md-12">
-                        <label for="expiration" class="col-form-label">Expiration</label>
+                    <div class="form-text col-md-12">
+                        <label for="expiration" class="col-form-label">Expire in (seconds)</label>
                         <input type="text" th:field="*{expiration}" class="form-control" id="expiration" placeholder="Expiration">
                         <span th:if="${#fields.hasErrors('expiration')}" th:errors="*{expiration}" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-md-12">
-                        <label for="raw" class="col-form-label">Content</label>
-                        <textarea th:field="*{raw}" class="form-control" id="raw" form="edit-form" placeholder="Raw" rows="20"></textarea>
-                        <span th:if="${#fields.hasErrors('raw')}" th:errors="*{raw}" class="text-danger"></span>
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <div class="checkbox">
+                            <label for="sendKey" class="col-form-label">
+                                <input type="checkbox" th:field="*{sendKey}" id="sendKey">Send key
+                                <span th:if="${#fields.hasErrors('sendKey')}" th:errors="*{sendKey}" class="text-danger"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-text col-md-12">
+                        <label for="recordExistsAction" class="col-form-label">Record exists action</label>
+                        <select class="form-control" form="edit-form" id="recordExistsAction" th:field="*{recordExistsAction}">
+                            <option value="UPDATE_ONLY">UPDATE_ONLY: Update only. Fail if not exist. Merge write with existing bins</option>
+                            <option value="REPLACE_ONLY">REPLACE_ONLY: Replace record only. Fail if not exist. Delete not referenced bins</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-text col-md-12">
+                        <label for="generationPolicy" class="col-form-label">Generation policy</label>
+                        <select class="form-control" form="edit-form" id="generationPolicy" th:field="*{generationPolicy}">
+                            <option value="NONE">NONE: Do not use record generation to restrict writes</option>
+                            <option value="EXPECT_GEN_EQUAL">EXPECT_GEN_EQUAL: Update/delete record if expected generation is equal to server generation. Otherwise, fail</option>
+                            <option value="EXPECT_GEN_GT">EXPECT_GEN_GT: Update/delete record if expected generation greater than the server generation. Otherwise, fail</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-text col-md-12">
+                        <label for="bins" class="col-form-label">Content</label>
+                        <textarea th:field="*{bins}" class="form-control" id="bins" form="edit-form" placeholder="Bins" rows="12"></textarea>
+                        <span th:if="${#fields.hasErrors('bins')}" th:errors="*{bins}" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-text col-md-12">
+                        <label for="generation" class="col-form-label">Generation</label>
+                        <input type="text" th:field="*{generation}" class="form-control" id="generation" placeholder="Generation" readonly>
+                        <span th:if="${#fields.hasErrors('generation')}" th:errors="*{generation}" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">

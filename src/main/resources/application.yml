@@ -18,3 +18,32 @@ spring:
 
   resources:
     add-mappings: true
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace: ALWAYS
+
+client:
+  policy:
+    read:
+      socketTimeout: 3000
+      totalTimeout: 5000
+      sleepBetweenRetries: 100
+      maxRetries: 3
+    update:
+      socketTimeout: 3000
+      totalTimeout: 5000
+      sleepBetweenRetries: 100
+      maxRetries: 2
+    create:
+      socketTimeout: 3000
+      totalTimeout: 5000
+      sleepBetweenRetries: 100
+      maxRetries: 2
+    delete:
+      socketTimeout: 3000
+      totalTimeout: 5000
+      sleepBetweenRetries: 100
+      maxRetries: 2

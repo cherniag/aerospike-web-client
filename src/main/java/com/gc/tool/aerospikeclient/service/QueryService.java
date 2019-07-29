@@ -1,6 +1,6 @@
 package com.gc.tool.aerospikeclient.service;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,28 +13,33 @@ import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Record;
 import com.aerospike.client.cluster.Node;
-import com.aerospike.client.policy.Priority;
+import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
-import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.buf.HexUtils;
-import org.springframework.stereotype.Service;
-
-import com.gc.tool.aerospikeclient.dto.CreateRecordDto;
+import com.aerospike.client.query.Filter;
+import com.aerospike.client.query.RecordSet;
+import com.aerospike.client.query.Statement;
+import com.gc.tool.aerospikeclient.converters.RecordConverter;
 import com.gc.tool.aerospikeclient.dto.AerospikeRecord;
 import com.gc.tool.aerospikeclient.dto.AerospikeSet;
+import com.gc.tool.aerospikeclient.dto.CreateRecordDto;
+import com.gc.tool.aerospikeclient.dto.QueryDto;
+import com.gc.tool.aerospikeclient.dto.UpdateRecordDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class QueryService {
+    private static final int DO_NOT_CHANGE_EXPIRATION = -2;
     private final ClientProvider clientProvider;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final WritePolicy defaultUpdatePolicy;
+    private final WritePolicy defaultCreatePolicy;
+    private final WritePolicy defaultDeletePolicy;
+    private final QueryPolicy defaultReadPolicy;
+    private final RecordConverter recordConverter;
 
     public List<String> getNameSpaces(Long connectionId) {
         log.info("getNameSpaces {}", connectionId);
@@ -77,20 +82,11 @@ public class QueryService {
 
     public List<AerospikeRecord> getRecords(Long connectionId, String namespace, String set) {
         log.info("getRecords {}, namespace {}, set {}", connectionId, namespace, set);
-
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
-
-        ScanPolicy policy = new ScanPolicy();
-        policy.concurrentNodes = true;
-        policy.priority = Priority.LOW;
-        policy.includeBinData = true;
-
-        Map<Key, Record> records = new HashMap<>();
-        aerospikeClient.scanAll(policy, namespace, set, records::put);
-
-        return records.entrySet().stream()
-            .map(entry -> toAerospikeRecord(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
+        Statement statement = new Statement();
+        statement.setNamespace(namespace);
+        statement.setSetName(set);
+        return doQuery(aerospikeClient, statement);
     }
 
     public void deleteRecord(Long connectionId, String namespace, String set, String keyToRemove) {
@@ -98,7 +94,7 @@ public class QueryService {
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
         Key key = new Key(namespace, set, keyToRemove);
-        boolean existed = aerospikeClient.delete(new WritePolicy(), key);
+        boolean existed = aerospikeClient.delete(defaultDeletePolicy, key);
         log.info("Record existed {}", existed);
     }
 
@@ -107,64 +103,69 @@ public class QueryService {
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
         Key key = new Key(namespace, set, keyId);
-        Record record = aerospikeClient.get(new ScanPolicy(), key);
+        Record record = aerospikeClient.get(defaultReadPolicy, key);
 
-        return toAerospikeRecord(key, record);
+        return recordConverter.toAerospikeRecord(key, record);
     }
 
-    public void updateRecord(Long connectionId, String namespace, String set, String keyId, AerospikeRecord aerospikeRecord) {
-        log.info("updateRecord {}, namespace {}, set {}, raw {}", connectionId, namespace, set, aerospikeRecord.getRaw());
+    public void updateRecord(Long connectionId, String namespace, String set, String keyId, UpdateRecordDto updateDto) {
+        log.info("updateRecord {}, namespace {}, set {}, record {}", connectionId, namespace, set, updateDto);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
 
         Key key = new Key(namespace, set, keyId);
-        Bin[] bins = getBins(aerospikeRecord.getRaw());
+        Bin[] bins = recordConverter.getBins(updateDto.getBins());
 
-        WritePolicy policy = new WritePolicy();
-        policy.recordExistsAction = RecordExistsAction.REPLACE_ONLY;
+        WritePolicy policy = getWritePolicy(defaultUpdatePolicy, updateDto.getExpiration(), updateDto.isSendKey(), updateDto.getRecordExistsAction());
+        policy.generationPolicy = updateDto.getGenerationPolicy();
+        policy.generation = updateDto.getGeneration();
         aerospikeClient.put(policy, key, bins);
     }
 
-    public void createRecord(Long connectionId, String namespace, String set, CreateRecordDto createRecordDto) {
-        log.info("createRecord {}, namespace {}, set {}, record {}", connectionId, namespace, set, createRecordDto);
+    public void createRecord(Long connectionId, String namespace, String set, CreateRecordDto createDto) {
+        log.info("createRecord {}, namespace {}, set {}, record {}", connectionId, namespace, set, createDto);
 
         AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
 
-        Key key = new Key(namespace, set, createRecordDto.getKey());
-        Bin[] bins = getBins(createRecordDto.getBins());
+        Key key = new Key(namespace, set, createDto.getKey());
+        Bin[] bins = recordConverter.getBins(createDto.getBins());
 
-        WritePolicy policy = new WritePolicy();
-        policy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-        policy.expiration = createRecordDto.getExpiration();
-        policy.sendKey = createRecordDto.isSendKey();
+        WritePolicy policy = getWritePolicy(defaultCreatePolicy, createDto.getExpiration(), createDto.isSendKey(), createDto.getRecordExistsAction());
         aerospikeClient.put(policy, key, bins);
     }
 
-    private Bin[] getBins(String raw) {
-        Map<String, Object> content;
-        try {
-            content = objectMapper.readValue(raw, new TypeReference<Map<String, Object>>() {
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public List<AerospikeRecord> query(Long connectionId, String namespace, String set, QueryDto queryDto) {
+        log.info("query {}, namespace {}, set {}, record {}", connectionId, namespace, set, queryDto);
+        AerospikeClient aerospikeClient = clientProvider.provide(connectionId);
+
+        if (queryDto.getKey() != null && !queryDto.getKey().isEmpty()) {
+            return Collections.singletonList(getRecord(connectionId, namespace, set, queryDto.getKey()));
         }
-        return content.entrySet().stream()
-            .map(entry -> new Bin(entry.getKey(), entry.getValue()))
-            .toArray(Bin[]::new);
+
+        Filter filter = queryDto.getQueryOperator().getMapper().apply(queryDto);
+
+        Statement statement = new Statement();
+        statement.setNamespace(namespace);
+        statement.setSetName(set);
+        statement.setFilter(filter);
+        return doQuery(aerospikeClient, statement);
     }
 
-    private AerospikeRecord toAerospikeRecord(Key key, Record record) {
-        try {
-            return new AerospikeRecord(
-                key.userKey == null ? null : key.userKey.toString(),
-                HexUtils.toHexString(key.digest),
-                record.generation,
-                record.expiration,
-                record.bins,
-                objectMapper.writeValueAsString(record.bins)
-            );
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    private List<AerospikeRecord> doQuery(AerospikeClient aerospikeClient, Statement statement) {
+        RecordSet recordSet = aerospikeClient.query(defaultReadPolicy, statement);
+        Map<Key, Record> records = new HashMap<>();
+        recordSet.forEach(keyRecord -> records.put(keyRecord.key, keyRecord.record));
+
+        return records.entrySet().stream()
+            .map(entry -> recordConverter.toAerospikeRecord(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+    }
+
+    private WritePolicy getWritePolicy(WritePolicy defaultCreatePolicy, Integer expiration, boolean sendKey, RecordExistsAction recordExistsAction) {
+        WritePolicy policy = new WritePolicy(defaultCreatePolicy);
+        policy.expiration = expiration == null ? DO_NOT_CHANGE_EXPIRATION : expiration;
+        policy.sendKey = sendKey;
+        policy.recordExistsAction = recordExistsAction;
+        return policy;
     }
 }

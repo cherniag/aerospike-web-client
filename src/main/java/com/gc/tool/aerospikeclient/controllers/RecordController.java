@@ -37,6 +37,7 @@ public class RecordController {
     public String getRecordPage(@PathVariable("connectionId") Long connectionId,
                                 @PathVariable("namespace") String namespace,
                                 @PathVariable("set") String set,
+                                @RequestParam(name = "short", required = false, defaultValue = "false") boolean isShort,
                                 Model model) {
         model.addAttribute("connectionId", connectionId);
         model.addAttribute("namespace", namespace);
@@ -46,6 +47,25 @@ public class RecordController {
         if (!records.isEmpty()) {
             List<String> binNames = getBinNames(records);
             model.addAttribute("bins", binNames);
+        }
+        if (isShort) {
+            records = records.stream()
+                .map(record -> new AerospikeRecord(
+                    record.getKey(),
+                    record.getHash(),
+                    record.getGeneration(),
+                    record.getExpiration(),
+                    record.getContent()
+                        .entrySet()
+                        .stream()
+                        .collect(
+                            Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> truncate(entry.getValue())
+                            )
+                        ),
+                    ""
+                )).collect(Collectors.toList());
         }
         model.addAttribute("records", records);
         return "record";
@@ -150,5 +170,9 @@ public class RecordController {
                 .map(Map.Entry::getKey))
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    private Object truncate(Object value) {
+        return value == null ? "" : (value.toString().length() > 20 ? value.toString().substring(0, 20) : value);
     }
 }

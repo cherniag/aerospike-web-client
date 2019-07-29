@@ -29,8 +29,9 @@
                     <tr>
                         <th>Name</th>
                         <th>Record count</th>
-                        <th>Select all</th>
-                        <th>Query</th>
+                        <th>All</th>
+                        <th>Short</th>
+                        <th>Filter</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -38,6 +39,7 @@
                         <td th:text="${set.name}"></td>
                         <td th:text="${set.recordCount}"></td>
                         <td><a th:href="@{'/record/' + ${connectionId} + '/' + ${namespace} + '/' + ${set.name}}" class="btn btn-info"><i class="fas fa-folder-open"></i></a></td>
+                        <td><a th:href="@{'/record/' + ${connectionId} + '/' + ${namespace} + '/' + ${set.name} + '?short=true'}" class="btn btn-info"><i class="fas fa-search"></i></a></td>
                         <td><a th:href="@{'/record/query/' + ${connectionId} + '/' + ${namespace} + '/' + ${set.name}}" class="btn btn-info"><i class="fas fa-filter"></i></a></td>
                     </tr>
                     </tbody>

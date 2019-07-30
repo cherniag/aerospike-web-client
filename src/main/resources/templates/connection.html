@@ -9,19 +9,26 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css"  th:href="@{/css/shards.min.css}">
     <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.ico}">
+    <script type="text/javascript" th:src="@{/js/search.js}"></script>
 </head>
 <body>
 <div th:switch="${connections}" class="container my-4">
     <h5 class="my-4">
         <a th:text="${'Home'}" class="btn btn-warning disabled"></a>
     </h5>
-    <h6 class="my-3">Connections:</h6>
+    <div class="form-group row">
+        <h6 class="col-sm-2 col-form-label">Connections:</h6>
+        <div class="col-sm-8"></div>
+        <div class="col-sm-2">
+            <input type="text" id="search_input" class="form-control" placeholder="Search by host" onkeyup="doFilter(1)">
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12">
             <h2 th:case="null">No connections</h2>
             <div th:case="*">
-                <table class="table table-striped table-responsive-md">
-                    <thead>
+                <table id="data_table" class="table table-striped table-responsive-md">
+                    <thead class="thead-dark">
                     <tr>
                         <th>Id</th>
                         <th>Host</th>

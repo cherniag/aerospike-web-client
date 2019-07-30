@@ -25,10 +25,10 @@
     </h5>
     <h6 class="my-3">Edit record:</h6>
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-6">
             <form id="edit-form" action="#" th:action="@{'/record/edit/' + ${connectionId} + '/' + ${namespace} + '/' + ${set} + '/' + ${hash}}" th:object="${record}" method="post">
                 <div class="row">
-                    <div class="form-text col-md-12">
+                    <div class="form-text col-md-6">
                         <label for="expiration" class="col-form-label">Expire in (seconds)</label>
                         <input type="text" th:field="*{expiration}" class="form-control" id="expiration" placeholder="Expiration">
                         <span th:if="${#fields.hasErrors('expiration')}" th:errors="*{expiration}" class="text-danger"></span>
@@ -56,20 +56,23 @@
                 <div class="row">
                     <div class="form-text col-md-12">
                         <label for="bins" class="col-form-label">Content</label>
-                        <textarea th:field="*{bins}" class="form-control" id="bins" form="edit-form" placeholder="Bins" rows="12"></textarea>
+                        <textarea th:field="*{bins}" class="form-control" id="bins" form="edit-form" placeholder="Bins" rows="12" style="resize: auto;"></textarea>
                         <span th:if="${#fields.hasErrors('bins')}" th:errors="*{bins}" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-text col-md-12">
+                    <div class="form-text col-md-6">
                         <label for="generation" class="col-form-label">Generation</label>
                         <input type="text" th:field="*{generation}" class="form-control" id="generation" placeholder="Generation" readonly>
                         <span th:if="${#fields.hasErrors('generation')}" th:errors="*{generation}" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6 mt-4">
+                    <div class="col-md-2 mt-4">
                         <input type="submit" class="btn btn-success" value="Save">
+                    </div>
+                    <div class="col-md-2 mt-4">
+                        <a th:href="@{'/record/' + ${connectionId} + '/' + ${namespace}} + '/' + ${set}" class="btn btn-danger">Cancel</a>
                     </div>
                 </div>
             </form>

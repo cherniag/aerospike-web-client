@@ -3,6 +3,7 @@ package com.gc.tool.aerospikeclient.config;
 import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.policy.WritePolicy;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,6 +65,8 @@ public class ClientContext {
 
     @Bean
     public ObjectMapper clientObjectMapper() {
-        return new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        return objectMapper;
     }
 }

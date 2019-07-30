@@ -19,3 +19,12 @@ function doFilter(index) {
     } 
   }
 }
+
+function fixSearchWidth() {
+    var inputDiv, table;
+    inputDiv = document.getElementById("search_input").parentElement.parentElement;
+    table = document.getElementById("data_table");
+    if (table.offsetWidth > inputDiv.offsetWidth) {
+        inputDiv.style.width = (table.offsetWidth + 30) + 'px';
+    }
+}

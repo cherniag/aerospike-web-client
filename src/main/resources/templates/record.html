@@ -11,7 +11,7 @@
     <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.ico}">
     <script type="text/javascript" th:src="@{/js/search.js}"></script>
 </head>
-<body>
+<body onload="fixSearchWidth()">
 <div th:switch="${records}" class="container my-4">
     <h5 class="my-4">
         <a th:href="${'/connection/'}" th:text="${'Home'}" class="btn btn-warning"></a>
@@ -23,7 +23,7 @@
         <a th:text="${set}" class="btn btn-warning disabled"></a>
     </h5>
     <div class="form-group row">
-        <h6 class="col-sm-2 col-form-label">Records:</h6>
+        <h6 th:text="@{${short} == true ? 'Records short:' : 'Records:'}" class="col-sm-2 col-form-label"></h6>
         <div class="col-sm-8"></div>
         <div class="col-sm-2">
             <input type="text" id="search_input" class="form-control" placeholder="Search by key" onkeyup="doFilter(0)">
@@ -44,7 +44,7 @@
                         <th>Delete</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="font-size: 0.9rem;">
                     <tr th:each="record : ${records}" th:if="${record != null}">
                         <td th:text="${record.key}"></td>
                         <td th:text="${record.generation}"></td>

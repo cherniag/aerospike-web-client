@@ -42,6 +42,7 @@ public class RecordController {
         model.addAttribute("connectionId", connectionId);
         model.addAttribute("namespace", namespace);
         model.addAttribute("set", set);
+        model.addAttribute("short", isShort);
 
         List<AerospikeRecord> records = queryService.getRecords(connectionId, namespace, set);
         if (!records.isEmpty()) {

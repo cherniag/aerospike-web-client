@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.converters;
+package com.gc.tools.aerospikeclient.converters;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -13,7 +13,7 @@ import com.aerospike.client.Record;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gc.tool.aerospikeclient.dto.AerospikeRecord;
+import com.gc.tools.aerospikeclient.dto.AerospikeRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.buf.HexUtils;

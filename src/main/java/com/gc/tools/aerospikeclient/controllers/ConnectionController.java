@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.controllers;
+package com.gc.tools.aerospikeclient.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.gc.tool.aerospikeclient.repository.ConnectionRepository;
-import com.gc.tool.aerospikeclient.entities.Connection;
+import com.gc.tools.aerospikeclient.repository.ConnectionRepository;
+import com.gc.tools.aerospikeclient.entities.Connection;
 
 @Controller
 @RequestMapping("/connection")

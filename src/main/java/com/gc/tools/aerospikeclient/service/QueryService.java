@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.service;
+package com.gc.tools.aerospikeclient.service;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,12 +20,12 @@ import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
-import com.gc.tool.aerospikeclient.converters.RecordConverter;
-import com.gc.tool.aerospikeclient.dto.AerospikeRecord;
-import com.gc.tool.aerospikeclient.dto.AerospikeSet;
-import com.gc.tool.aerospikeclient.dto.CreateRecordDto;
-import com.gc.tool.aerospikeclient.dto.QueryDto;
-import com.gc.tool.aerospikeclient.dto.UpdateRecordDto;
+import com.gc.tools.aerospikeclient.converters.RecordConverter;
+import com.gc.tools.aerospikeclient.dto.AerospikeRecord;
+import com.gc.tools.aerospikeclient.dto.AerospikeSet;
+import com.gc.tools.aerospikeclient.dto.CreateRecordDto;
+import com.gc.tools.aerospikeclient.dto.QueryDto;
+import com.gc.tools.aerospikeclient.dto.UpdateRecordDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.buf.HexUtils;

@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.controllers;
+package com.gc.tools.aerospikeclient.controllers;
 
 import java.util.List;
 import java.util.Map;
@@ -9,12 +9,12 @@ import javax.validation.Valid;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.query.IndexCollectionType;
-import com.gc.tool.aerospikeclient.dto.AerospikeRecord;
-import com.gc.tool.aerospikeclient.dto.CreateRecordDto;
-import com.gc.tool.aerospikeclient.dto.QueryDto;
-import com.gc.tool.aerospikeclient.dto.QueryOperator;
-import com.gc.tool.aerospikeclient.dto.UpdateRecordDto;
-import com.gc.tool.aerospikeclient.service.QueryService;
+import com.gc.tools.aerospikeclient.dto.AerospikeRecord;
+import com.gc.tools.aerospikeclient.dto.CreateRecordDto;
+import com.gc.tools.aerospikeclient.dto.QueryDto;
+import com.gc.tools.aerospikeclient.dto.QueryOperator;
+import com.gc.tools.aerospikeclient.dto.UpdateRecordDto;
+import com.gc.tools.aerospikeclient.service.QueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

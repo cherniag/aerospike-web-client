@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.dto;
+package com.gc.tools.aerospikeclient.dto;
 
 import com.aerospike.client.query.IndexCollectionType;
 import lombok.Value;

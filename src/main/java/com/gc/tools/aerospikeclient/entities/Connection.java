@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.entities;
+package com.gc.tools.aerospikeclient.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

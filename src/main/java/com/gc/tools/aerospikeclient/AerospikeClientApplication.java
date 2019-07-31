@@ -1,13 +1,13 @@
-package com.gc.tool.aerospikeclient;
+package com.gc.tools.aerospikeclient;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class AerospikeClientApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(AerospikeClientApplication.class, args);
     }
 
 }

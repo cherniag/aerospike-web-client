@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.config;
+package com.gc.tools.aerospikeclient.config;
 
 import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.policy.WritePolicy;

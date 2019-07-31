@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.service;
+package com.gc.tools.aerospikeclient.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.gc.tool.aerospikeclient.entities.Connection;
-import com.gc.tool.aerospikeclient.repository.ConnectionRepository;
+import com.gc.tools.aerospikeclient.entities.Connection;
+import com.gc.tools.aerospikeclient.repository.ConnectionRepository;
 
 @Component
 @Slf4j

@@ -1,8 +1,8 @@
-package com.gc.tool.aerospikeclient.controllers;
+package com.gc.tools.aerospikeclient.controllers;
 
 import java.util.List;
 
-import com.gc.tool.aerospikeclient.service.QueryService;
+import com.gc.tools.aerospikeclient.service.QueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

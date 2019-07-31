@@ -1,4 +1,4 @@
-package com.gc.tool.aerospikeclient.dto;
+package com.gc.tools.aerospikeclient.dto;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

@@ -25,4 +25,12 @@ public class Connection {
     String username;
     @Column
     String password;
+
+    public Connection() {
+
+    }
+
+    public Connection(int port) {
+        this.port = port;
+    }
 }

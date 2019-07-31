@@ -29,7 +29,7 @@ public class ConnectionController {
 
     @GetMapping("/create")
     public String addConnectionPage(Model model) {
-        model.addAttribute("connection", new Connection());
+        model.addAttribute("connection", new Connection(3000));
         return "createConnection";
     }
 

@@ -16,7 +16,7 @@
         <aerospike-client.version>4.4.2</aerospike-client.version>
         <lombok.version>1.18.8</lombok.version>
         <spring-boot-starter-data-jpa.version>2.1.6.RELEASE</spring-boot-starter-data-jpa.version>
-        <h2.version>1.4.199</h2.version>
+        <h2.version>2.0.206</h2.version>
         <liquibase-core.version>3.7.0</liquibase-core.version>
 
         <spring-boot-maven-plugin.version>2.1.6.RELEASE</spring-boot-maven-plugin.version>
